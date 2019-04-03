@@ -13,7 +13,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"math/rand"
+	//"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -184,8 +184,8 @@ func (c *Client) SendAndReadOne(packet *dhcp4.Packet) (*dhcp4.Packet, error) {
 // TODO: Look at RFC and confirm.
 func (c *Client) DiscoverPacket() *dhcp4.Packet {
 	packet := dhcp4.NewPacket(dhcp4.BootRequest)
-	rand.Read(packet.TransactionID[:])
-	//packet.TransactionID = macToID(c.iface.Attrs().HardwareAddr)
+	//rand.Read(packet.TransactionID[:])
+	packet.TransactionID = macToID(c.iface.Attrs().HardwareAddr)
 	packet.CHAddr = c.iface.Attrs().HardwareAddr
 	packet.Broadcast = true
 
@@ -426,7 +426,11 @@ func (c *Client) retryFn(fn func() error) error {
 	return context.DeadlineExceeded
 }
 
-func macToID(mac []byte) int {
-	txid := binary.LittleEndian.Uint32(mac)
-	return int(uint(txid))
+func macToID(mac []byte) []byte {
+	txid := make([]byte, 4)
+	txid[0] = mac[len(mac-1)]
+	txid[1] = mac[len(mac-2)]
+	txid[2] = mac[len(mac-3)]
+	txid[3] = mac[len(mac-4)]
+	return txid
 }
