@@ -424,8 +424,8 @@ func (c *Client) retryFn(fn func() error) error {
 	return context.DeadlineExceeded
 }
 
-func macToID(mac []byte) []byte {
-	txid := []byte{0, 0, 0, 0}
+func macToID(mac []byte) [4]byte {
+	txid := [4]byte{0, 0, 0, 0}
 	txid[0] = mac[len(mac)-1]
 	txid[1] = mac[len(mac)-2]
 	txid[2] = mac[len(mac)-3]
