@@ -427,7 +427,7 @@ func (c *Client) retryFn(fn func() error) error {
 }
 
 func macToID(mac []byte) []byte {
-	txid := make([]byte, 4)
+	txid := []byte{0, 0, 0, 0}
 	txid[0] = mac[len(mac-1)]
 	txid[1] = mac[len(mac-2)]
 	txid[2] = mac[len(mac-3)]
