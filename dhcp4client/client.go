@@ -183,7 +183,7 @@ func (c *Client) SendAndReadOne(packet *dhcp4.Packet) (*dhcp4.Packet, error) {
 func (c *Client) DiscoverPacket() *dhcp4.Packet {
 	packet := dhcp4.NewPacket(dhcp4.BootRequest)
 	//rand.Read(packet.TransactionID[:])
-	packet.TransactionID = macToID(c.iface.Attrs().HardwareAddr)[:]
+	packet.TransactionID = macToID(c.iface.Attrs().HardwareAddr)
 	packet.CHAddr = c.iface.Attrs().HardwareAddr
 	packet.Broadcast = true
 
