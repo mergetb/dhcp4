@@ -372,7 +372,7 @@ func (c *Client) sendAndRead(ctx context.Context, dest *net.UDPAddr, p *dhcp4.Pa
 			}
 
 			if pkt.TransactionID != p.TransactionID {
-				if pkt.HardwareAddr != nil && !bytes.Equal(c.iface.Attrs().HardwareAddr, msg.ClientHWAddr) {
+				if pkt.HardwareAddr != nil && !bytes.Equal(c.iface.Attrs().HardwareAddr, pkt.HardwareAddr) {
 					continue
 				}
 				// Not the right response packet.
