@@ -9,8 +9,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/u-root/dhcp4"
-	"github.com/u-root/dhcp4/dhcp4opts"
+	"github.com/mergetb/dhcp4"
+	"github.com/mergetb/dhcp4/dhcp4opts"
 )
 
 type macAddr [16]byte

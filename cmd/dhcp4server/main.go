@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/u-root/dhcp4/dhcp4server"
+	"github.com/mergetb/dhcp4/dhcp4server"
 )
 
 var (

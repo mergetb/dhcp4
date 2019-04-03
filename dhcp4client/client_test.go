@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/u-root/dhcp4"
+	"github.com/mergetb/dhcp4"
 )
 
 type timeoutErr struct{}

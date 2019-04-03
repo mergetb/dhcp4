@@ -10,7 +10,7 @@ package dhcp4opts
 import (
 	"time"
 
-	"github.com/u-root/dhcp4"
+	"github.com/mergetb/dhcp4"
 )
 
 // GetSubnetMask returns the subnet mask of `o`.

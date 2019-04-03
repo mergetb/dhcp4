@@ -10,12 +10,6 @@ import (
 	"golang.org/x/net/bpf"
 )
 
-const (
-	// Maximum read timeout per syscall.
-	// It is required because read/recvfrom won't be interrupted on closing of the file descriptor.
-	readTimeout = 200 * time.Millisecond
-)
-
 var (
 	// ErrNotImplemented is returned when certain functionality is not yet
 	// implemented for the host operating system.
@@ -98,6 +92,22 @@ func (c *Conn) SetPromiscuous(b bool) error {
 	return c.p.SetPromiscuous(b)
 }
 
+// Stats contains statistics about a Conn.
+type Stats struct {
+	// The total number of packets received.
+	Packets uint64
+
+	// The number of packets dropped.
+	Drops uint64
+}
+
+// Stats retrieves statistics from the Conn.
+//
+// Only supported on Linux at this time.
+func (c *Conn) Stats() (*Stats, error) {
+	return c.p.Stats()
+}
+
 // ListenPacket creates a net.PacketConn which can be used to send and receive
 // data at the network interface device driver level.
 //
@@ -112,7 +122,12 @@ func (c *Conn) SetPromiscuous(b bool) error {
 // A nil Config is equivalent to the default configuration: send and receive
 // data at the network interface device driver level (usually raw Ethernet frames).
 func ListenPacket(ifi *net.Interface, proto uint16, cfg *Config) (*Conn, error) {
-	p, err := listenPacket(ifi, proto, cfg)
+	// A nil config is an empty Config.
+	if cfg == nil {
+		cfg = &Config{}
+	}
+
+	p, err := listenPacket(ifi, proto, *cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -127,24 +142,15 @@ type Config struct {
 	// Linux only: call socket(7) with SOCK_DGRAM instead of SOCK_RAW.
 	// Has no effect on other operating systems.
 	LinuxSockDGRAM bool
+
+	// Linux only: do not accumulate packet socket statistic counters.  Packet
+	// socket statistics are reset on each call to retrieve them via getsockopt,
+	// but this package's default behavior is to continue accumulating the
+	// statistics internally per Conn.  To use the Linux default behavior of
+	// resetting statistics on each call to Stats, set this value to true.
+	NoCumulativeStats bool
+
+	// Linux only: initial filter to apply to the connection. This avoids
+	// capturing random packets before SetBPF is called.
+	Filter []bpf.RawInstruction
 }
-
-// htons converts a short (uint16) from host-to-network byte order.
-// Thanks to mikioh for this neat trick:
-// https://github.com/mikioh/-stdyng/blob/master/afpacket.go
-func htons(i uint16) uint16 {
-	return (i<<8)&0xff00 | i>>8
-}
-
-// Copyright (c) 2012 The Go Authors. All rights reserved.
-// Source code in this file is based on src/net/interface_linux.go,
-// from the Go standard library.  The Go license can be found here:
-// https://golang.org/LICENSE.
-
-// Taken from:
-// https://github.com/golang/go/blob/master/src/net/net.go#L417-L421.
-type timeoutError struct{}
-
-func (e *timeoutError) Error() string   { return "i/o timeout" }
-func (e *timeoutError) Timeout() bool   { return true }
-func (e *timeoutError) Temporary() bool { return true }

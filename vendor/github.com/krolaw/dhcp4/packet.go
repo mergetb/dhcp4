@@ -197,6 +197,8 @@ func (p *Packet) PadToMinSize() {
 	}
 }
 
+//go:generate stringer -type=OpCode
+
 // OpCodes
 const (
 	BootRequest OpCode = 1 // From Client
@@ -323,6 +325,12 @@ const (
 	OptionDomainSearch OptionCode = 119
 
 	OptionClasslessRouteFormat OptionCode = 121
+	
+	// From RFC3942 - Options Used by PXELINUX
+	OptionPxelinuxMagic OptionCode = 208
+	OptionPxelinuxConfigfile OptionCode = 209
+	OptionPxelinuxPathprefix OptionCode = 210
+	OptionPxelinuxReboottime OptionCode = 211
 )
 
 /* Notes

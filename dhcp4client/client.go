@@ -11,14 +11,15 @@ package dhcp4client
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"fmt"
 	"math/rand"
 	"net"
 	"sync"
 	"time"
 
-	"github.com/u-root/dhcp4"
-	"github.com/u-root/dhcp4/dhcp4opts"
+	"github.com/mergetb/dhcp4"
+	"github.com/mergetb/dhcp4/dhcp4opts"
 	"github.com/vishvananda/netlink"
 )
 
@@ -183,8 +184,8 @@ func (c *Client) SendAndReadOne(packet *dhcp4.Packet) (*dhcp4.Packet, error) {
 // TODO: Look at RFC and confirm.
 func (c *Client) DiscoverPacket() *dhcp4.Packet {
 	packet := dhcp4.NewPacket(dhcp4.BootRequest)
-	rand.Read(packet.TransactionID[:])
-	//packet.TransactionID = c.iface.Attrs().HardwareAddr
+	//rand.Read(packet.TransactionID[:])
+	packet.TransactionID = macToID(c.iface.Attrs().HardwareAddr)
 	packet.CHAddr = c.iface.Attrs().HardwareAddr
 	packet.Broadcast = true
 
@@ -423,4 +424,9 @@ func (c *Client) retryFn(fn func() error) error {
 	}
 
 	return context.DeadlineExceeded
+}
+
+func macToID(mac []byte) int {
+	txid := binary.LittleEndian.Uint32(mac)
+	return int(uint(txid))
 }

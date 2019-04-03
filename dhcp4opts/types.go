@@ -8,7 +8,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/u-root/dhcp4"
+	"github.com/mergetb/dhcp4"
 	"github.com/u-root/u-root/pkg/uio"
 )
 

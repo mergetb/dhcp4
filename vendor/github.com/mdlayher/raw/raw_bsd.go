@@ -63,8 +63,9 @@ type packetConn struct {
 
 // listenPacket creates a net.PacketConn which can be used to send and receive
 // data at the device driver level.
-func listenPacket(ifi *net.Interface, proto uint16, _ *Config) (*packetConn, error) {
+func listenPacket(ifi *net.Interface, proto uint16, _ Config) (*packetConn, error) {
 	// Config is, as of now, unused on BSD.
+	// TODO(mdlayher): consider porting NoTimeouts option to BSD if it pans out.
 
 	var f *os.File
 	var err error
@@ -127,7 +128,7 @@ func (p *packetConn) ReadFrom(b []byte) (int, net.Addr, error) {
 		if deadline.IsZero() {
 			timeout = readTimeout
 		} else {
-			timeout = deadline.Sub(time.Now())
+			timeout = time.Until(deadline)
 			if timeout > readTimeout {
 				timeout = readTimeout
 			}
@@ -219,13 +220,17 @@ func (p *packetConn) SetBPF(filter []bpf.RawInstruction) error {
 // SetPromiscuous enables or disables promiscuous mode on the interface, allowing it
 // to receive traffic that is not addressed to the interface.
 func (p *packetConn) SetPromiscuous(b bool) error {
-
 	m := 1
 	if !b {
 		m = 0
 	}
 
 	return syscall.SetBpfPromisc(p.fd, m)
+}
+
+// Stats retrieves statistics from the Conn.
+func (p *packetConn) Stats() (*Stats, error) {
+	return nil, ErrNotImplemented
 }
 
 // configureBPF configures a BPF device with the specified file descriptor to
@@ -273,25 +278,6 @@ func configureBPF(fd int, ifi *net.Interface, proto uint16) (int, error) {
 	}
 
 	return buflen, nil
-}
-
-// setBPFDirection enables filtering traffic traveling in a specific direction
-// using BPF, so that traffic sent by this package is not captured when reading
-// using this package.
-func setBPFDirection(fd int, direction int) error {
-	_, _, err := syscall.Syscall(
-		syscall.SYS_IOCTL,
-		uintptr(fd),
-		// Even though BIOCSDIRECTION is preferred on FreeBSD, BIOCSSEESENT continues
-		// to work, and is required for other BSD platforms
-		syscall.BIOCSSEESENT,
-		uintptr(unsafe.Pointer(&direction)),
-	)
-	if err != 0 {
-		return syscall.Errno(err)
-	}
-
-	return nil
 }
 
 // assembleBpfInsn assembles a slice of bpf.RawInstructions to the format required by
