@@ -29,6 +29,18 @@
   revision = "5f27d82a512f55b8668d40c0343d2f53885261fa"
 
 [[projects]]
+  branch = "master"
+  digest = "1:7964b3b34b74b6c7dfbd5775d8bb82bef69e9729f4c7d341a9b73b0820b5c41a"
+  name = "github.com/u-root/dhcp4"
+  packages = [
+    ".",
+    "dhcp4opts",
+    "dhcp4server",
+  ]
+  pruneopts = "NUT"
+  revision = "03363dc71ec82763595440b4b2c3e5f69f47a4e0"
+
+[[projects]]
   digest = "1:c1bb3f437a292d3448b0d2d0a82da9a13786bb3e97f266e6fd10c2f455d7c4ec"
   name = "github.com/u-root/u-root"
   packages = [
@@ -86,6 +98,9 @@
     "github.com/krolaw/dhcp4",
     "github.com/mdlayher/ethernet",
     "github.com/mdlayher/raw",
+    "github.com/u-root/dhcp4",
+    "github.com/u-root/dhcp4/dhcp4opts",
+    "github.com/u-root/dhcp4/dhcp4server",
     "github.com/u-root/u-root/pkg/uio",
     "github.com/vishvananda/netlink",
     "golang.org/x/sys/unix",

@@ -9,6 +9,7 @@
 package dhcp4client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math/rand"
@@ -183,6 +184,7 @@ func (c *Client) SendAndReadOne(packet *dhcp4.Packet) (*dhcp4.Packet, error) {
 func (c *Client) DiscoverPacket() *dhcp4.Packet {
 	packet := dhcp4.NewPacket(dhcp4.BootRequest)
 	rand.Read(packet.TransactionID[:])
+	//packet.TransactionID = c.iface.Attrs().HardwareAddr
 	packet.CHAddr = c.iface.Attrs().HardwareAddr
 	packet.Broadcast = true
 
@@ -370,6 +372,9 @@ func (c *Client) sendAndRead(ctx context.Context, dest *net.UDPAddr, p *dhcp4.Pa
 			}
 
 			if pkt.TransactionID != p.TransactionID {
+				if pkt.HardwareAddr != nil && !bytes.Equal(c.iface.Attrs().HardwareAddr, msg.ClientHWAddr) {
+					continue
+				}
 				// Not the right response packet.
 				continue
 			}
